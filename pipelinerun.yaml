@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: get-test-and-build
+  labels:
+    tekton.dev/pipeline: get-test-and-builda
+spec:
+  params:
+    - name: git-url
+      value: 'https://github.com/jandradap/pipeline-build-test.git'
+    - name: git-revision
+      value: main
+    - name: IMAGE
+      value: >-
+        image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/prueba:latest
+  pipelineRef:
+    name: get-test-and-builda
+  serviceAccountName: pipeline
+  timeout: 1h0m0s
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        metadata:
+          creationTimestamp: null
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+          storageClassName: gp2
+          volumeMode: Filesystem
+        status: {}
