@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: get-test-and-build
+  name: get-test-and-builda-64pmep
   labels:
     tekton.dev/pipeline: get-test-and-builda
 spec:
@@ -28,6 +28,6 @@ spec:
           resources:
             requests:
               storage: 1Gi
-          storageClassName: {}
+          storageClassName: gp2
           volumeMode: Filesystem
         status: {}
