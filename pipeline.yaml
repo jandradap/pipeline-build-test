@@ -1,0 +1,50 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: get-test-and-build
+spec:
+  params:
+    - default: 'https://github.com/jandradap/pipeline-build-test.git'
+      description: url of the git repo for the code of deployment
+      name: git-url
+      type: string
+    - default: main
+      description: revision to be used from repo of the code for deployment
+      name: git-revision
+      type: string
+    - default: >-
+        image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/prueba:latest
+      description: image to be build from the code
+      name: IMAGE
+      type: string
+  tasks:
+    - name: fetch-repository
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: subdirectory
+          value: ''
+        - name: deleteExisting
+          value: 'true'
+        - name: revision
+          value: $(params.git-revision)
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: source
+    - name: build-image
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE)
+      runAfter:
+        - fetch-repository
+      taskRef:
+        kind: ClusterTask
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: source
+  workspaces:
+    - name: source
